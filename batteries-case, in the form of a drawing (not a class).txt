@@ -1,0 +1,467 @@
+# import copy;
+# import datetime;
+# import math;
+import os;
+# import Drawing;
+import Part;
+# import Draft
+from FreeCAD import Base;
+
+
+document = App.newDocument('FreeCAD filler test')
+
+
+
+batteryWidth = float(93.0)                              
+batteryDepth = float(167.0)                             
+batteryHeight = float(485.0)                            
+row_betweenBattery = float(20.0)                        
+boxThickness = float(50.0)                              
+additionalHeight = float(0.0)                          
+rotation = float(0) 
+scale_by_x = float(0.5)
+scale_by_y = float(0.5)
+scale_by_z = float(0.5)
+
+myMat = Base.Matrix()
+myMat.scale(scale_by_x,scale_by_y,scale_by_z)
+
+
+
+wallLeftWidth = float(boxThickness)                     
+wallLeftDepth = float((5*(batteryDepth)+
+                row_betweenBattery*6)
+                )                                       
+wallLeftHeight = float(batteryHeight+additionalHeight)  
+
+
+LeftWall_X = float((-batteryWidth - 
+             2*row_betweenBattery-
+             boxThickness)
+             )
+LeftWall_Y = float(-row_betweenBattery)
+LeftWall_Z = float(0.0)
+
+
+boxShapeLTh = Part.makeBox(wallLeftWidth, wallLeftDepth, 
+              wallLeftHeight, Base.Vector(LeftWall_X, 
+              LeftWall_Y, LeftWall_Z)
+              )
+
+
+boxShapeLTh.rotate (Base.Vector ((-batteryWidth - 
+                   2*row_betweenBattery-
+                   boxThickness),(-row_betweenBattery),0),
+                   Base.Vector (0,0,1), rotation)
+
+boxShapeLTh = boxShapeLTh.transformGeometry(myMat)
+ 
+box = document.addObject('Part::Feature', 'Box')
+box.Shape = boxShapeLTh
+
+
+wallRightWidth = float(boxThickness)                    
+wallRightDepth = float((5*(batteryDepth)+ 
+                 row_betweenBattery*6)
+                 )                                      
+wallRightHeight = float((batteryHeight+
+                  additionalHeight)
+                  )                                     
+
+
+RightWall_X = float(batteryWidth+row_betweenBattery)
+RightWall_Y = float(-row_betweenBattery)
+RightWall_Z = float(0.0)
+
+
+
+boxShapeRTh = Part.makeBox(wallRightWidth, wallRightDepth, 
+              wallRightHeight, Base.Vector
+              (RightWall_X, RightWall_Y, RightWall_Z)
+              )
+
+
+boxShapeRTh.rotate (Base.Vector ((-batteryWidth - 
+                   2*row_betweenBattery-
+                   boxThickness),(-row_betweenBattery),0),
+                   Base.Vector (0,0,1), rotation)
+
+boxShapeRTh = boxShapeRTh.transformGeometry(myMat)
+
+box = document.addObject('Part::Feature', 'Box')
+box.Shape = boxShapeRTh
+
+
+wallAnteriortWidth = float((2*batteryWidth+
+                     row_betweenBattery*
+                     3 + 2*boxThickness)
+                     )                                  
+wallAnteriortDepth = float(boxThickness)                
+wallAnteriortHeight = float((batteryHeight+
+                      additionalHeight)
+                      )                                 
+
+
+AnteriortWall_X = float((-batteryWidth - 
+                  2*row_betweenBattery-
+                  boxThickness)
+                  )
+AnteriortWall_Y = float((-row_betweenBattery-
+                  boxThickness)
+                  )
+AnteriortWall_Z = float(0.0)
+
+
+boxShapeATh = Part.makeBox(wallAnteriortWidth, 
+              wallAnteriortDepth, wallAnteriortHeight, 
+              Base.Vector(AnteriortWall_X, 
+              AnteriortWall_Y, 
+              AnteriortWall_Z)
+              )
+
+
+boxShapeATh.rotate (Base.Vector ((-batteryWidth - 
+                   2*row_betweenBattery-
+                   boxThickness),(-row_betweenBattery),0),
+                   Base.Vector (0,0,1), rotation)
+
+boxShapeATh = boxShapeATh.transformGeometry(myMat)
+
+box = document.addObject('Part::Feature', 'Box')
+box.Shape = boxShapeATh
+
+
+
+wallPosteriorWidth = float((2*batteryWidth+
+                     row_betweenBattery*3 +
+                     2*boxThickness)
+                     )                                   
+wallPosteriorDepth = float(boxThickness)                 
+wallPosteriorHeight = float((batteryHeight+
+                      additionalHeight)
+                      )                                  
+
+
+PosteriorWall_X = float((-batteryWidth - 
+                  2*row_betweenBattery-
+                  boxThickness)
+                  )
+PosteriorWall_Y = float((5*row_betweenBattery + 
+                  5*batteryDepth)
+                  )
+PosteriorWall_Z = float(0.0)
+
+
+boxShapePTh = Part.makeBox(wallPosteriorWidth, 
+              wallPosteriorDepth, wallPosteriorHeight, 
+              Base.Vector(PosteriorWall_X, 
+              PosteriorWall_Y, PosteriorWall_Z)
+              )
+
+
+boxShapePTh.rotate (Base.Vector ((-batteryWidth - 
+                   2*row_betweenBattery-
+                   boxThickness),(-row_betweenBattery),0),
+                   Base.Vector (0,0,1), rotation)
+
+boxShapePTh = boxShapePTh.transformGeometry(myMat)
+
+box = document.addObject('Part::Feature', 'Box')
+box.Shape = boxShapePTh
+
+
+
+wallLowerWidth = float((2*batteryWidth+
+                 row_betweenBattery*3 +
+                 2*boxThickness)
+                 )                                         
+wallLowerDepth = float(6*row_betweenBattery + 
+                 + 5*batteryDepth + 2*boxThickness
+                 )                                         
+wallLowerHeight = float(boxThickness)                      
+
+
+LowerWall_X = float((-batteryWidth - 
+              2*row_betweenBattery-
+              boxThickness)
+              )
+LowerWall_Y = float((-row_betweenBattery-
+              boxThickness)
+              )
+LowerWall_Z = float(-boxThickness) 
+
+
+boxShapeLoTh = Part.makeBox(wallLowerWidth, 
+               wallLowerDepth, wallLowerHeight, 
+               Base.Vector(LowerWall_X, 
+               LowerWall_Y, LowerWall_Z)
+               )
+
+
+boxShapeLoTh.rotate (Base.Vector ((-batteryWidth - 
+                    2*row_betweenBattery-
+                    boxThickness),(-row_betweenBattery),0),
+                    Base.Vector (0,0,1), rotation)
+
+boxShapeLoTh = boxShapeLoTh.transformGeometry(myMat)
+
+box = document.addObject('Part::Feature', 'Box')
+box.Shape = boxShapeLoTh
+
+
+row1_cubeLocation_X = float(0.0)                           
+row1_cubeLocation_Y = float(batteryDepth)                  
+row1_cubeLocation_Z = float(0.0)                           
+
+
+row2_cubeLocation_X = float((-batteryWidth-
+                      row_betweenBattery)  
+                      )                                    
+row2_cubeLocation_Y = float(batteryDepth)                  
+row2_cubeLocation_Z = float(0.0)                           
+ 
+
+
+boxShape_1_1 = Part.makeBox(batteryWidth,
+               batteryDepth, batteryHeight, 
+               Base.Vector(0, 0, 0)
+               )
+
+
+boxShape_1_1.rotate (Base.Vector ((-batteryWidth - 
+                    2*row_betweenBattery-
+                    boxThickness),(-row_betweenBattery),0),
+                    Base.Vector (0,0,1), rotation)
+
+boxShape_1_1 = boxShape_1_1.transformGeometry(myMat)
+ 
+box = document.addObject('Part::Feature', 'Box')
+box.Shape = boxShape_1_1
+
+
+
+boxShape_1_2 = Part.makeBox(batteryWidth, batteryDepth, 
+               batteryHeight, Base.Vector
+               (row1_cubeLocation_X, row1_cubeLocation_Y+
+               row_betweenBattery, row1_cubeLocation_Z)
+               )
+
+
+boxShape_1_2.rotate (Base.Vector ((-batteryWidth - 
+                    2*row_betweenBattery-
+                    boxThickness),(-row_betweenBattery),0),
+                    Base.Vector (0,0,1), rotation)
+
+boxShape_1_2 = boxShape_1_2.transformGeometry(myMat)
+
+box = document.addObject('Part::Feature', 'Box')
+box.Shape = boxShape_1_2
+
+
+boxShape_1_3 = Part.makeBox(batteryWidth, batteryDepth, 
+               batteryHeight, Base.Vector(row1_cubeLocation_X, 
+               2*(row1_cubeLocation_Y)+row_betweenBattery*2, 
+               row1_cubeLocation_Z)
+               )
+
+
+boxShape_1_3.rotate (Base.Vector ((-batteryWidth - 
+                    2*row_betweenBattery-
+                    boxThickness),(-row_betweenBattery),0),
+                    Base.Vector (0,0,1), rotation)
+
+boxShape_1_3 = boxShape_1_3.transformGeometry(myMat)
+
+box = document.addObject('Part::Feature', 'Box')
+box.Shape = boxShape_1_3
+
+
+boxShape_1_4 = Part.makeBox(batteryWidth, batteryDepth, 
+               batteryHeight, Base.Vector(row1_cubeLocation_X, 
+               3*(row1_cubeLocation_Y)+row_betweenBattery*3, 
+               row1_cubeLocation_Z)
+               )
+
+
+boxShape_1_4.rotate (Base.Vector ((-batteryWidth - 
+                    2*row_betweenBattery-
+                    boxThickness),(-row_betweenBattery),0),
+                    Base.Vector (0,0,1), rotation)
+
+boxShape_1_4 = boxShape_1_4.transformGeometry(myMat)
+
+box = document.addObject('Part::Feature', 'Box')
+box.Shape = boxShape_1_4
+
+
+boxShape_1_5 = Part.makeBox(batteryWidth, batteryDepth, 
+           batteryHeight, Base.Vector(row1_cubeLocation_X, 
+           4*(row1_cubeLocation_Y)+row_betweenBattery*4, 
+           row1_cubeLocation_Z)
+           )
+
+
+boxShape_1_5.rotate (Base.Vector ((-batteryWidth - 
+                    2*row_betweenBattery-
+                    boxThickness),(-row_betweenBattery),0),
+                    Base.Vector (0,0,1), rotation)
+
+boxShape_1_5 = boxShape_1_5.transformGeometry(myMat)
+
+box = document.addObject('Part::Feature', 'Box')
+box.Shape = boxShape_1_5
+
+
+boxShape_2_1 = Part.makeBox(batteryWidth, batteryDepth, 
+               batteryHeight, Base.Vector
+               (row2_cubeLocation_X, 0, 0)
+               )
+
+
+boxShape_2_1.rotate (Base.Vector ((-batteryWidth - 
+                    2*row_betweenBattery-
+                    boxThickness),(-row_betweenBattery),0),
+                    Base.Vector (0,0,1), rotation)
+
+boxShape_2_1 = boxShape_2_1.transformGeometry(myMat)
+
+box = document.addObject('Part::Feature', 'Box')
+box.Shape = boxShape_2_1
+
+
+boxShape_2_2 = Part.makeBox(batteryWidth, batteryDepth, 
+               batteryHeight, Base.Vector(row2_cubeLocation_X, 
+               row1_cubeLocation_Y+row_betweenBattery, 
+               row1_cubeLocation_Z)
+               )
+
+
+boxShape_2_2.rotate (Base.Vector ((-batteryWidth - 
+                    2*row_betweenBattery-
+                    boxThickness),(-row_betweenBattery),0),
+                    Base.Vector (0,0,1), rotation)
+
+boxShape_2_2 = boxShape_2_2.transformGeometry(myMat)
+
+box = document.addObject('Part::Feature', 'Box')
+box.Shape = boxShape_2_2
+
+
+boxShape_2_3 = Part.makeBox(batteryWidth, batteryDepth, 
+               batteryHeight, Base.Vector(row2_cubeLocation_X, 
+               2*(row1_cubeLocation_Y)+row_betweenBattery*2, 
+               row1_cubeLocation_Z)
+               )
+
+
+boxShape_2_3.rotate (Base.Vector ((-batteryWidth - 
+                    2*row_betweenBattery-
+                    boxThickness),(-row_betweenBattery),0),
+                    Base.Vector (0,0,1), rotation)
+
+boxShape_2_3 = boxShape_2_3.transformGeometry(myMat)
+
+box = document.addObject('Part::Feature', 'Box')
+box.Shape = boxShape_2_3
+
+
+boxShape_2_4 = Part.makeBox(batteryWidth, batteryDepth, 
+               batteryHeight, Base.Vector(row2_cubeLocation_X, 
+               3*(row1_cubeLocation_Y)+row_betweenBattery*3, 
+               row1_cubeLocation_Z)
+               )
+
+
+boxShape_2_4.rotate (Base.Vector ((-batteryWidth - 
+                    2*row_betweenBattery-
+                    boxThickness),(-row_betweenBattery),0),
+                    Base.Vector (0,0,1), rotation)
+
+boxShape_2_4 = boxShape_2_4.transformGeometry(myMat)
+
+box = document.addObject('Part::Feature', 'Box')
+box.Shape = boxShape_2_4
+
+
+boxShape_2_5 = Part.makeBox(batteryWidth, batteryDepth, 
+               batteryHeight, Base.Vector(row2_cubeLocation_X, 
+               4*(row1_cubeLocation_Y)+row_betweenBattery*4, 
+               row1_cubeLocation_Z)
+               )
+
+
+boxShape_2_5.rotate (Base.Vector ((-batteryWidth - 
+                    2*row_betweenBattery-
+                    boxThickness),(-row_betweenBattery),0),
+                    Base.Vector (0,0,1), rotation)
+
+# Draft.scale(FreeCAD.ActiveDocument.ActiveObject,FreeCAD.Vector(1,1,2))
+
+boxShape_2_5 = boxShape_2_5.transformGeometry(myMat)
+
+box = document.addObject('Part::Feature', 'Box')
+box.Shape = boxShape_2_5
+
+
+Gui.SendMsgToActiveView("ViewFit")
+Gui.activeDocument().activeView().viewAxonometric()
+
+document.recompute()
+
+# Draft.scale(FreeCAD.ActiveDocument.ActiveObject,FreeCAD.Vector(2,2,2)) 
+
+
+# Side part page
+boxPage = document.addObject('Drawing::FeaturePage', 'Side part');
+boxPage.Template = os.path.dirname(__file__) + '/A4-Portrait-ISO7200.svg';
+boxView = document.addObject('Drawing::FeatureViewPart', 'Side part view');
+boxView.Source = box;
+boxView.Direction = (0.0, 1.0, 0);
+boxView.X = 50.0;
+boxView.Y = 100.0;
+boxView.Scale = 1.0;  # drawingScale;
+boxPage.addObject(boxView);
+# Change page texts
+boxTexts = boxPage.EditableTexts;
+# Author
+boxTexts[0] = "Vitche Research Team";
+# Drawing name
+boxTexts[1] = "Roof book shelve - side part";
+# Scale
+boxTexts[10] = str(1.0);
+# Drawing #
+boxTexts[12] = "1";
+# Date
+# boxTexts[13] = datetime.datetime.now().strftime("%Y-%m-%d");
+# Version
+boxTexts[14] = "0" ;
+boxPage.EditableTexts = boxTexts;
+
+
+"""
+# Side part page
+leftSidePage = document.addObject('Drawing::FeaturePage', 'Side part');
+leftSidePage.Template = os.path.dirname(__file__) + '/A4-Portrait-ISO7200.svg';
+leftSideView = document.addObject('Drawing::FeatureViewPart', 'Side part view');
+leftSideView.Source = leftSide;
+leftSideView.Direction = (0.0, 1.0, 0);
+leftSideView.X = 50.0;
+leftSideView.Y = 100.0;
+leftSideView.Scale = drawingScale;
+leftSidePage.addObject(leftSideView);
+# Change page texts
+leftSideTexts = leftSidePage.EditableTexts;
+# Author
+leftSideTexts[0] = "Vitche Research Team";
+# Drawing name
+leftSideTexts[1] = "Roof book shelve - side part";
+# Scale
+leftSideTexts[10] = str(drawingScale);
+# Drawing #
+leftSideTexts[12] = "1";
+# Date
+leftSideTexts[13] = datetime.datetime.now().strftime("%Y-%m-%d");
+# Version
+leftSideTexts[14] = partVersion;
+leftSidePage.EditableTexts = leftSideTexts;
+"""
