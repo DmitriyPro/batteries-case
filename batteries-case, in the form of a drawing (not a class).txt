@@ -1,444 +1,666 @@
 # import copy;
 # import datetime;
 # import math;
+import Draft;
 import os;
-# import Drawing;
+import Drawing;
 import Part;
-# import Draft
 from FreeCAD import Base;
 
 
+
+# Sodaniye of the document with a name (Sodaniye dokumenta s imenem)
 document = App.newDocument('FreeCAD filler test')
 
+shelveGroup = document.addObject("App::DocumentObjectGroup", "Shelve");
+
+class Box:
+    """ My box with batteries"""
+    def __init__(self, batteryWidth, batteryDepth, 
+                batteryHeight, row_betweenBattery, 
+                boxThickness, additionalHeight, 
+                rotation, x, y, z, scale_by_x, 
+                scale_by_y, scale_by_z):
+        self.batteryWidth = batteryWidth
+        self.batteryDepth = batteryDepth
+        self.batteryHeight = batteryHeight
+        self.row_betweenBattery = row_betweenBattery
+        self.boxThickness = boxThickness
+        self.additionalHeight = additionalHeight
+        self.rotation = rotation
+        self.x = x
+        self.y = y
+        self.z = z
+        self.scale_by_x = scale_by_x
+        self.scale_by_y = scale_by_y
+        self.scale_by_z = scale_by_z
+
+        # Scaling a shape (Masshtabirovaniye formy)
+        myMat = Base.Matrix()
+        myMat.scale(scale_by_x,scale_by_y,scale_by_z)
+
+        wallLeftWidth = float(boxThickness)                     # Width (Shirina) (x)
+        wallLeftDepth = float((5*(batteryDepth)+
+                        row_betweenBattery*6)
+                        )                                       # Depth (glubina) (y)
+        wallLeftHeight = float(batteryHeight+additionalHeight)  # Height (Vysota) (z)
+
+        # Coordinates of the left wall of a box (Koordinaty levoy stenki yashchika)(x, y, z)
+        LeftWall_X = float((-batteryWidth - 
+                     2*row_betweenBattery-
+                     boxThickness)
+                     )
+        LeftWall_Y = float(-row_betweenBattery)
+        LeftWall_Z = float(0.0)
+
+        # Form of the left wall of a box (Forma levoy stenki korobki)
+        boxShapeLTh = Part.makeBox(wallLeftWidth, wallLeftDepth, 
+                      wallLeftHeight, Base.Vector(LeftWall_X, 
+                      LeftWall_Y, LeftWall_Z)
+                      )
+
+        # Turn of the left wall of a box (Povorot levoy steny korobki)
+        boxShapeLTh.rotate(Base.Vector ((-batteryWidth - 
+                          2*row_betweenBattery-
+                          boxThickness),(-row_betweenBattery),0),
+                          Base.Vector(x, y, z), rotation)
+        
+        # Scaling a shape (Masshtabirovaniye formy)
+        boxShapeLTh = boxShapeLTh.transformGeometry(myMat)
+
+        # Object for display of the form (Ob"yekt dlya otobrazheniya formy)
+        box1 = document.addObject('Part::Feature', 'Box')
+        box1.Shape = boxShapeLTh
 
 
-batteryWidth = float(93.0)                              
-batteryDepth = float(167.0)                             
-batteryHeight = float(485.0)                            
-row_betweenBattery = float(20.0)                        
-boxThickness = float(50.0)                              
-additionalHeight = float(0.0)                          
-rotation = float(0) 
-scale_by_x = float(0.5)
-scale_by_y = float(0.5)
-scale_by_z = float(0.5)
+        # Right wall of a box (Pravaya stenka korobki) (x, y, z)
+        wallRightWidth = float(boxThickness)                    # Width (Shirina) (x)
+        wallRightDepth = float((5*(batteryDepth)+ 
+                         row_betweenBattery*6)
+                         )                                      # Depth (glubina) (y)
+        wallRightHeight = float((batteryHeight+
+                          additionalHeight)
+                          )                                     # Height (Vysota) (z)
 
-myMat = Base.Matrix()
-myMat.scale(scale_by_x,scale_by_y,scale_by_z)
-
-
-
-wallLeftWidth = float(boxThickness)                     
-wallLeftDepth = float((5*(batteryDepth)+
-                row_betweenBattery*6)
-                )                                       
-wallLeftHeight = float(batteryHeight+additionalHeight)  
+        # Coordinates of the right wall of a box (Koordinaty pravoy stenki yashchika) (x, y, z)
+        RightWall_X = float(batteryWidth+row_betweenBattery)
+        RightWall_Y = float(-row_betweenBattery)
+        RightWall_Z = float(0.0)
 
 
-LeftWall_X = float((-batteryWidth - 
-             2*row_betweenBattery-
-             boxThickness)
-             )
-LeftWall_Y = float(-row_betweenBattery)
-LeftWall_Z = float(0.0)
+        # Form of the right wall of a box (Forma pravoy stenki yashchika)
+        boxShapeRTh = Part.makeBox(wallRightWidth, wallRightDepth, 
+                      wallRightHeight, Base.Vector
+                      (RightWall_X, RightWall_Y, RightWall_Z)
+                      )
+
+        # Turn of the right wall of a box (Povorot pravoy stenki yashchika)
+        boxShapeRTh.rotate(Base.Vector ((-batteryWidth - 
+                          2*row_betweenBattery-
+                          boxThickness),(-row_betweenBattery),0),
+                          Base.Vector(x, y, z), rotation)
+
+        # Scaling a shape (Masshtabirovaniye formy)
+        boxShapeRTh = boxShapeRTh.transformGeometry(myMat)
+
+        # Object for display of the form (Ob"yekt dlya otobrazheniya formy)
+        box2 = document.addObject('Part::Feature', 'Box')
+        box2.Shape = boxShapeRTh
 
 
-boxShapeLTh = Part.makeBox(wallLeftWidth, wallLeftDepth, 
-              wallLeftHeight, Base.Vector(LeftWall_X, 
-              LeftWall_Y, LeftWall_Z)
-              )
+        # Front face of a box (Perednyaya storona korobki) (x, y, z)
+        wallAnteriortWidth = float((2*batteryWidth+
+                            row_betweenBattery*
+                            3 + 2*boxThickness)
+                            )                                   # Width (Shirina) (x)
+        wallAnteriortDepth = float(boxThickness)                # Depth (glubina) (y)
+        wallAnteriortHeight = float((batteryHeight+
+                              additionalHeight)
+                              )                                 # Height (Vysota) (z)
+
+        # Coordinates of a front wall of a box (Koordinaty peredney stenki korobki) (x, y, z)
+        AnteriortWall_X = float((-batteryWidth - 
+                          2*row_betweenBattery-
+                          boxThickness)
+                          )
+        AnteriortWall_Y = float((-row_betweenBattery-
+                          boxThickness)
+                          )
+        AnteriortWall_Z = float(0.0)
+
+        # Form of a front wall of a box (Forma peredney stenki korobki)
+        boxShapeATh = Part.makeBox(wallAnteriortWidth, 
+                      wallAnteriortDepth, wallAnteriortHeight, 
+                      Base.Vector(AnteriortWall_X, 
+                      AnteriortWall_Y, 
+                      AnteriortWall_Z)
+                      )
+
+        # Turn of a front wall of a box (Povorot peredney stenki korobki)
+        boxShapeATh.rotate(Base.Vector ((-batteryWidth - 
+                          2*row_betweenBattery-
+                          boxThickness),(-row_betweenBattery),0),
+                          Base.Vector(x, y, z), rotation)
+
+        # Scaling a shape (Masshtabirovaniye formy)
+        boxShapeATh = boxShapeATh.transformGeometry(myMat)
+
+        # Object for display of the form (Ob"yekt dlya otobrazheniya formy)
+        box3 = document.addObject('Part::Feature', 'Box')
+        box3.Shape = boxShapeATh
 
 
-boxShapeLTh.rotate (Base.Vector ((-batteryWidth - 
-                   2*row_betweenBattery-
-                   boxThickness),(-row_betweenBattery),0),
-                   Base.Vector (0,0,1), rotation)
+        # Back face of a box (Zadnyaya storona korobki) (x, y, z)
+        wallPosteriorWidth = float((2*batteryWidth+
+                             row_betweenBattery*3 +
+                             2*boxThickness)
+                             )                                   # Width (Shirina) (x)
+        wallPosteriorDepth = float(boxThickness)                 # Depth (glubina) (y)
+        wallPosteriorHeight = float((batteryHeight+
+                              additionalHeight)
+                              )                                  # Height (Vysota) (z)
 
-boxShapeLTh = boxShapeLTh.transformGeometry(myMat)
+        # Coordinates of a back wall of a box (Koordinaty zadney stenki yashchika) (x, y, z)
+        PosteriorWall_X = float((-batteryWidth - 
+                          2*row_betweenBattery-
+                          boxThickness)
+                          )
+        PosteriorWall_Y = float((5*row_betweenBattery + 
+                          5*batteryDepth)
+                          )
+        PosteriorWall_Z = float(0.0)
+
+        # Form of a back wall of a box (Forma zadney stenki korobki)
+        boxShapePTh = Part.makeBox(wallPosteriorWidth, 
+                      wallPosteriorDepth, wallPosteriorHeight, 
+                      Base.Vector(PosteriorWall_X, 
+                      PosteriorWall_Y, PosteriorWall_Z)
+                      )
+
+        # Turn of a back wall of a box (Povorot zadney stenki yashchika)
+        boxShapePTh.rotate(Base.Vector ((-batteryWidth - 
+                          2*row_betweenBattery-
+                          boxThickness),(-row_betweenBattery),0),
+                          Base.Vector(x, y, z), rotation)
+
+        # Scaling a shape (Masshtabirovaniye formy)
+        boxShapePTh = boxShapePTh.transformGeometry(myMat)
+
+        # Object for display of the form (Ob"yekt dlya otobrazheniya formy)
+        box4 = document.addObject('Part::Feature', 'Box')
+        box4.Shape = boxShapePTh
+
+
+        # Lower side of a box (Nizhnyaya storona korobki) (x, y, z)
+        wallLowerWidth = float((2*batteryWidth+
+                         row_betweenBattery*3 +
+                         2*boxThickness)
+                         )                                         # Width (Shirina) (x)
+        wallLowerDepth = float(6*row_betweenBattery + 
+                         + 5*batteryDepth + 2*boxThickness
+                         )                                         # Depth (glubina) (y)
+        wallLowerHeight = float(boxThickness)                      # Height (Vysota) (z)
+
+        # Coordinates of the lower wall of a box (Koordinaty nizhney stenki yashchika) (x, y, z)
+        LowerWall_X = float((-batteryWidth - 
+                      2*row_betweenBattery-
+                      boxThickness)
+                      )
+        LowerWall_Y = float((-row_betweenBattery-
+                      boxThickness)
+                      )
+        LowerWall_Z = float(-boxThickness) 
+
+        # Form of the lower wall of a box (Forma nizhney stenki yashchika)
+        boxShapeLoTh = Part.makeBox(wallLowerWidth, 
+                       wallLowerDepth, wallLowerHeight, 
+                       Base.Vector(LowerWall_X, 
+                       LowerWall_Y, LowerWall_Z)
+                       )
+
+        # Turn of the lower wall of a box (Povorot nizhney stenki yashchika)
+        boxShapeLoTh.rotate(Base.Vector ((-batteryWidth - 
+                           2*row_betweenBattery-
+                           boxThickness),(-row_betweenBattery),0),
+                           Base.Vector(x, y, z), rotation)
+
+        # Scaling a shape (Masshtabirovaniye formy)
+        boxShapeLoTh = boxShapeLoTh.transformGeometry(myMat)
+
+        # Object for display of the form (Ob"yekt dlya otobrazheniya formy)
+        box5 = document.addObject('Part::Feature', 'Box')
+        box5.Shape = boxShapeLoTh
+
+        # Layouts of a cube for the 1st row (Makety kuba dlya 1-y stroki) (x,y,z)
+        row1_cubeLocation_X = float(0.0)                           # Width (Shirina) (x)
+        row1_cubeLocation_Y = float(batteryDepth)                  # Depth (glubina) (y)
+        row1_cubeLocation_Z = float(0.0)                           # Height (Vysota) (z)
+
+        # Layouts of a cube for the 2nd row (Makety kuba dlya vtoroy stroki) (x, y, z)
+        row2_cubeLocation_X = float((-batteryWidth-
+                              row_betweenBattery)  
+                              )                                    # Width (Shirina) (x)
+        row2_cubeLocation_Y = float(batteryDepth)                  # Depth (glubina) (y)
+        row2_cubeLocation_Z = float(0.0)                           # Height (Vysota) (z)                           
  
-box = document.addObject('Part::Feature', 'Box')
-box.Shape = boxShapeLTh
 
-
-wallRightWidth = float(boxThickness)                    
-wallRightDepth = float((5*(batteryDepth)+ 
-                 row_betweenBattery*6)
-                 )                                      
-wallRightHeight = float((batteryHeight+
-                  additionalHeight)
-                  )                                     
-
-
-RightWall_X = float(batteryWidth+row_betweenBattery)
-RightWall_Y = float(-row_betweenBattery)
-RightWall_Z = float(0.0)
-
-
-
-boxShapeRTh = Part.makeBox(wallRightWidth, wallRightDepth, 
-              wallRightHeight, Base.Vector
-              (RightWall_X, RightWall_Y, RightWall_Z)
-              )
-
-
-boxShapeRTh.rotate (Base.Vector ((-batteryWidth - 
-                   2*row_betweenBattery-
-                   boxThickness),(-row_betweenBattery),0),
-                   Base.Vector (0,0,1), rotation)
-
-boxShapeRTh = boxShapeRTh.transformGeometry(myMat)
-
-box = document.addObject('Part::Feature', 'Box')
-box.Shape = boxShapeRTh
-
-
-wallAnteriortWidth = float((2*batteryWidth+
-                     row_betweenBattery*
-                     3 + 2*boxThickness)
-                     )                                  
-wallAnteriortDepth = float(boxThickness)                
-wallAnteriortHeight = float((batteryHeight+
-                      additionalHeight)
-                      )                                 
-
-
-AnteriortWall_X = float((-batteryWidth - 
-                  2*row_betweenBattery-
-                  boxThickness)
-                  )
-AnteriortWall_Y = float((-row_betweenBattery-
-                  boxThickness)
-                  )
-AnteriortWall_Z = float(0.0)
-
-
-boxShapeATh = Part.makeBox(wallAnteriortWidth, 
-              wallAnteriortDepth, wallAnteriortHeight, 
-              Base.Vector(AnteriortWall_X, 
-              AnteriortWall_Y, 
-              AnteriortWall_Z)
-              )
-
-
-boxShapeATh.rotate (Base.Vector ((-batteryWidth - 
-                   2*row_betweenBattery-
-                   boxThickness),(-row_betweenBattery),0),
-                   Base.Vector (0,0,1), rotation)
-
-boxShapeATh = boxShapeATh.transformGeometry(myMat)
-
-box = document.addObject('Part::Feature', 'Box')
-box.Shape = boxShapeATh
-
-
-
-wallPosteriorWidth = float((2*batteryWidth+
-                     row_betweenBattery*3 +
-                     2*boxThickness)
-                     )                                   
-wallPosteriorDepth = float(boxThickness)                 
-wallPosteriorHeight = float((batteryHeight+
-                      additionalHeight)
-                      )                                  
-
-
-PosteriorWall_X = float((-batteryWidth - 
-                  2*row_betweenBattery-
-                  boxThickness)
-                  )
-PosteriorWall_Y = float((5*row_betweenBattery + 
-                  5*batteryDepth)
-                  )
-PosteriorWall_Z = float(0.0)
-
-
-boxShapePTh = Part.makeBox(wallPosteriorWidth, 
-              wallPosteriorDepth, wallPosteriorHeight, 
-              Base.Vector(PosteriorWall_X, 
-              PosteriorWall_Y, PosteriorWall_Z)
-              )
-
-
-boxShapePTh.rotate (Base.Vector ((-batteryWidth - 
-                   2*row_betweenBattery-
-                   boxThickness),(-row_betweenBattery),0),
-                   Base.Vector (0,0,1), rotation)
-
-boxShapePTh = boxShapePTh.transformGeometry(myMat)
-
-box = document.addObject('Part::Feature', 'Box')
-box.Shape = boxShapePTh
-
-
-
-wallLowerWidth = float((2*batteryWidth+
-                 row_betweenBattery*3 +
-                 2*boxThickness)
-                 )                                         
-wallLowerDepth = float(6*row_betweenBattery + 
-                 + 5*batteryDepth + 2*boxThickness
-                 )                                         
-wallLowerHeight = float(boxThickness)                      
-
-
-LowerWall_X = float((-batteryWidth - 
-              2*row_betweenBattery-
-              boxThickness)
-              )
-LowerWall_Y = float((-row_betweenBattery-
-              boxThickness)
-              )
-LowerWall_Z = float(-boxThickness) 
-
-
-boxShapeLoTh = Part.makeBox(wallLowerWidth, 
-               wallLowerDepth, wallLowerHeight, 
-               Base.Vector(LowerWall_X, 
-               LowerWall_Y, LowerWall_Z)
-               )
-
-
-boxShapeLoTh.rotate (Base.Vector ((-batteryWidth - 
-                    2*row_betweenBattery-
-                    boxThickness),(-row_betweenBattery),0),
-                    Base.Vector (0,0,1), rotation)
-
-boxShapeLoTh = boxShapeLoTh.transformGeometry(myMat)
-
-box = document.addObject('Part::Feature', 'Box')
-box.Shape = boxShapeLoTh
-
-
-row1_cubeLocation_X = float(0.0)                           
-row1_cubeLocation_Y = float(batteryDepth)                  
-row1_cubeLocation_Z = float(0.0)                           
-
-
-row2_cubeLocation_X = float((-batteryWidth-
-                      row_betweenBattery)  
-                      )                                    
-row2_cubeLocation_Y = float(batteryDepth)                  
-row2_cubeLocation_Z = float(0.0)                           
- 
-
-
-boxShape_1_1 = Part.makeBox(batteryWidth,
-               batteryDepth, batteryHeight, 
-               Base.Vector(0, 0, 0)
-               )
-
-
-boxShape_1_1.rotate (Base.Vector ((-batteryWidth - 
-                    2*row_betweenBattery-
-                    boxThickness),(-row_betweenBattery),0),
-                    Base.Vector (0,0,1), rotation)
-
-boxShape_1_1 = boxShape_1_1.transformGeometry(myMat)
- 
-box = document.addObject('Part::Feature', 'Box')
-box.Shape = boxShape_1_1
-
-
-
-boxShape_1_2 = Part.makeBox(batteryWidth, batteryDepth, 
-               batteryHeight, Base.Vector
-               (row1_cubeLocation_X, row1_cubeLocation_Y+
-               row_betweenBattery, row1_cubeLocation_Z)
-               )
-
-
-boxShape_1_2.rotate (Base.Vector ((-batteryWidth - 
-                    2*row_betweenBattery-
-                    boxThickness),(-row_betweenBattery),0),
-                    Base.Vector (0,0,1), rotation)
-
-boxShape_1_2 = boxShape_1_2.transformGeometry(myMat)
-
-box = document.addObject('Part::Feature', 'Box')
-box.Shape = boxShape_1_2
-
-
-boxShape_1_3 = Part.makeBox(batteryWidth, batteryDepth, 
-               batteryHeight, Base.Vector(row1_cubeLocation_X, 
-               2*(row1_cubeLocation_Y)+row_betweenBattery*2, 
-               row1_cubeLocation_Z)
-               )
-
-
-boxShape_1_3.rotate (Base.Vector ((-batteryWidth - 
-                    2*row_betweenBattery-
-                    boxThickness),(-row_betweenBattery),0),
-                    Base.Vector (0,0,1), rotation)
-
-boxShape_1_3 = boxShape_1_3.transformGeometry(myMat)
-
-box = document.addObject('Part::Feature', 'Box')
-box.Shape = boxShape_1_3
-
-
-boxShape_1_4 = Part.makeBox(batteryWidth, batteryDepth, 
-               batteryHeight, Base.Vector(row1_cubeLocation_X, 
-               3*(row1_cubeLocation_Y)+row_betweenBattery*3, 
-               row1_cubeLocation_Z)
-               )
-
-
-boxShape_1_4.rotate (Base.Vector ((-batteryWidth - 
-                    2*row_betweenBattery-
-                    boxThickness),(-row_betweenBattery),0),
-                    Base.Vector (0,0,1), rotation)
-
-boxShape_1_4 = boxShape_1_4.transformGeometry(myMat)
-
-box = document.addObject('Part::Feature', 'Box')
-box.Shape = boxShape_1_4
-
-
-boxShape_1_5 = Part.makeBox(batteryWidth, batteryDepth, 
-           batteryHeight, Base.Vector(row1_cubeLocation_X, 
-           4*(row1_cubeLocation_Y)+row_betweenBattery*4, 
-           row1_cubeLocation_Z)
-           )
-
-
-boxShape_1_5.rotate (Base.Vector ((-batteryWidth - 
-                    2*row_betweenBattery-
-                    boxThickness),(-row_betweenBattery),0),
-                    Base.Vector (0,0,1), rotation)
-
-boxShape_1_5 = boxShape_1_5.transformGeometry(myMat)
-
-box = document.addObject('Part::Feature', 'Box')
-box.Shape = boxShape_1_5
-
-
-boxShape_2_1 = Part.makeBox(batteryWidth, batteryDepth, 
-               batteryHeight, Base.Vector
-               (row2_cubeLocation_X, 0, 0)
-               )
-
-
-boxShape_2_1.rotate (Base.Vector ((-batteryWidth - 
-                    2*row_betweenBattery-
-                    boxThickness),(-row_betweenBattery),0),
-                    Base.Vector (0,0,1), rotation)
-
-boxShape_2_1 = boxShape_2_1.transformGeometry(myMat)
-
-box = document.addObject('Part::Feature', 'Box')
-box.Shape = boxShape_2_1
-
-
-boxShape_2_2 = Part.makeBox(batteryWidth, batteryDepth, 
-               batteryHeight, Base.Vector(row2_cubeLocation_X, 
-               row1_cubeLocation_Y+row_betweenBattery, 
-               row1_cubeLocation_Z)
-               )
-
-
-boxShape_2_2.rotate (Base.Vector ((-batteryWidth - 
-                    2*row_betweenBattery-
-                    boxThickness),(-row_betweenBattery),0),
-                    Base.Vector (0,0,1), rotation)
-
-boxShape_2_2 = boxShape_2_2.transformGeometry(myMat)
-
-box = document.addObject('Part::Feature', 'Box')
-box.Shape = boxShape_2_2
-
-
-boxShape_2_3 = Part.makeBox(batteryWidth, batteryDepth, 
-               batteryHeight, Base.Vector(row2_cubeLocation_X, 
-               2*(row1_cubeLocation_Y)+row_betweenBattery*2, 
-               row1_cubeLocation_Z)
-               )
-
-
-boxShape_2_3.rotate (Base.Vector ((-batteryWidth - 
-                    2*row_betweenBattery-
-                    boxThickness),(-row_betweenBattery),0),
-                    Base.Vector (0,0,1), rotation)
-
-boxShape_2_3 = boxShape_2_3.transformGeometry(myMat)
-
-box = document.addObject('Part::Feature', 'Box')
-box.Shape = boxShape_2_3
-
-
-boxShape_2_4 = Part.makeBox(batteryWidth, batteryDepth, 
-               batteryHeight, Base.Vector(row2_cubeLocation_X, 
-               3*(row1_cubeLocation_Y)+row_betweenBattery*3, 
-               row1_cubeLocation_Z)
-               )
-
-
-boxShape_2_4.rotate (Base.Vector ((-batteryWidth - 
-                    2*row_betweenBattery-
-                    boxThickness),(-row_betweenBattery),0),
-                    Base.Vector (0,0,1), rotation)
-
-boxShape_2_4 = boxShape_2_4.transformGeometry(myMat)
-
-box = document.addObject('Part::Feature', 'Box')
-box.Shape = boxShape_2_4
-
-
-boxShape_2_5 = Part.makeBox(batteryWidth, batteryDepth, 
-               batteryHeight, Base.Vector(row2_cubeLocation_X, 
-               4*(row1_cubeLocation_Y)+row_betweenBattery*4, 
-               row1_cubeLocation_Z)
-               )
-
-
-boxShape_2_5.rotate (Base.Vector ((-batteryWidth - 
-                    2*row_betweenBattery-
-                    boxThickness),(-row_betweenBattery),0),
-                    Base.Vector (0,0,1), rotation)
-
-# Draft.scale(FreeCAD.ActiveDocument.ActiveObject,FreeCAD.Vector(1,1,2))
-
-boxShape_2_5 = boxShape_2_5.transformGeometry(myMat)
-
-box = document.addObject('Part::Feature', 'Box')
-box.Shape = boxShape_2_5
-
-
+        # Form of a cube of the 1st row (1) (Forma kuba 1-go ryada (1))
+        boxShape_1_1 = Part.makeBox(batteryWidth,
+                       batteryDepth, batteryHeight, 
+                       Base.Vector(0, 0, 0)
+                       )
+
+        # Turn of a cube of the 1st row, the 2nd cube (Povorot kuba 1-go ryada, 2-y kub)
+        boxShape_1_1.rotate(Base.Vector ((-batteryWidth - 
+                           2*row_betweenBattery-
+                           boxThickness),(-row_betweenBattery),0),
+                           Base.Vector(x, y, z), rotation)
+
+        # Scaling a shape (Masshtabirovaniye formy)
+        boxShape_1_1 = boxShape_1_1.transformGeometry(myMat)
+
+        # Object for display of the form (Ob"yekt dlya otobrazheniya formy)
+        box = document.addObject('Part::Feature', 'Box')
+        box.Shape = boxShape_1_1
+
+
+        # Form of a cube of the 1st row (2) (Forma kuba 1-go ryada (2))
+        boxShape_1_2 = Part.makeBox(batteryWidth, batteryDepth, 
+                       batteryHeight, Base.Vector
+                       (row1_cubeLocation_X, row1_cubeLocation_Y+
+                       row_betweenBattery, row1_cubeLocation_Z)
+                       )
+
+        # Turn of a cube of the 1st row, the 2nd cube (Povorot kuba 1-go ryada, 2-y kub)
+        boxShape_1_2.rotate(Base.Vector ((-batteryWidth - 
+                           2*row_betweenBattery-
+                           boxThickness),(-row_betweenBattery),0),
+                           Base.Vector(x, y, z), rotation)
+
+        # Scaling a shape (Masshtabirovaniye formy)
+        boxShape_1_2 = boxShape_1_2.transformGeometry(myMat)
+
+        # Object for display of the form (Ob"yekt dlya otobrazheniya formy)
+        box = document.addObject('Part::Feature', 'Box')
+        box.Shape = boxShape_1_2
+
+        # Form of a cube of the 1st row (3) (Forma kuba 1-go ryada (3))
+        boxShape_1_3 = Part.makeBox(batteryWidth, batteryDepth, 
+                       batteryHeight, Base.Vector(row1_cubeLocation_X, 
+                       2*(row1_cubeLocation_Y)+row_betweenBattery*2, 
+                       row1_cubeLocation_Z)
+                       )
+
+        # Turn of a cube of the 1st row, the 3rd cube (Povorot kuba 1-go ryada, 3-go kuba)
+        boxShape_1_3.rotate(Base.Vector ((-batteryWidth - 
+                           2*row_betweenBattery-
+                           boxThickness),(-row_betweenBattery),0),
+                           Base.Vector(x, y, z), rotation)
+
+        # Scaling a shape (Masshtabirovaniye formy)
+        boxShape_1_3 = boxShape_1_3.transformGeometry(myMat) 
+
+        # Object for display of the form (Ob"yekt dlya otobrazheniya formy)
+        box = document.addObject('Part::Feature', 'Box')
+        box.Shape = boxShape_1_3
+
+        # Form of a cube of the 1st row (4) (Forma kuba 1-go ryada (4))
+        boxShape_1_4 = Part.makeBox(batteryWidth, batteryDepth, 
+                       batteryHeight, Base.Vector(row1_cubeLocation_X, 
+                       3*(row1_cubeLocation_Y)+row_betweenBattery*3, 
+                       row1_cubeLocation_Z)
+                       )
+
+        # Turn of a cube of the 1st row, the 4th cube (Povorot kuba 1-go ryada, 4-y kub)
+        boxShape_1_4.rotate(Base.Vector ((-batteryWidth - 
+                           2*row_betweenBattery-
+                           boxThickness),(-row_betweenBattery),0),
+                           Base.Vector(x, y, z), rotation)
+
+        # Scaling a shape (Masshtabirovaniye formy)
+        boxShape_1_4 = boxShape_1_4.transformGeometry(myMat)
+
+        # Object for display of the form (Ob"yekt dlya otobrazheniya formy)
+        box = document.addObject('Part::Feature', 'Box')
+        box.Shape = boxShape_1_4
+
+        # Form of a cube of the 1st row (5) (Forma kuba 1-go ryada (5))
+        boxShape_1_5 = Part.makeBox(batteryWidth, batteryDepth, 
+                   batteryHeight, Base.Vector(row1_cubeLocation_X, 
+                   4*(row1_cubeLocation_Y)+row_betweenBattery*4, 
+                   row1_cubeLocation_Z)
+                   )
+
+        # Turn of a cube of the 1st row, the 5th cube (Povorot kuba 1-go ryada, 5-y kub)
+        boxShape_1_5.rotate(Base.Vector ((-batteryWidth - 
+                           2*row_betweenBattery-
+                           boxThickness),(-row_betweenBattery),0),
+                           Base.Vector(x, y, z), rotation)
+
+        # Scaling a shape (Masshtabirovaniye formy)
+        boxShape_1_5 = boxShape_1_5.transformGeometry(myMat)
+
+        # Object for display of the form (Ob"yekt dlya otobrazheniya formy)
+        box = document.addObject('Part::Feature', 'Box')
+        box.Shape = boxShape_1_5
+
+        # Form of a cube of the 2nd row (1) (Forma kuba vtorogo ryada (1))
+        boxShape_2_1 = Part.makeBox(batteryWidth, batteryDepth, 
+                       batteryHeight, Base.Vector
+                       (row2_cubeLocation_X, 0, 0)
+                       )
+
+        # Turn of a cube of the 2nd row, the 1st cube (Povorot kuba 2-go ryada, 1-y kub)
+        boxShape_2_1.rotate(Base.Vector ((-batteryWidth - 
+                           2*row_betweenBattery-
+                           boxThickness),(-row_betweenBattery),0),
+                           Base.Vector(x, y, z), rotation)
+
+        # Scaling a shape (Masshtabirovaniye formy)
+        boxShape_2_1 = boxShape_2_1.transformGeometry(myMat)
+
+        # Object for display of the form (Ob"yekt dlya otobrazheniya formy)
+        box = document.addObject('Part::Feature', 'Box')
+        box.Shape = boxShape_2_1
+
+        # Form of a cube of the 2nd row (2) (Forma kuba vtorogo ryada (2))
+        boxShape_2_2 = Part.makeBox(batteryWidth, batteryDepth, 
+                       batteryHeight, Base.Vector(row2_cubeLocation_X, 
+                       row1_cubeLocation_Y+row_betweenBattery, 
+                       row1_cubeLocation_Z)
+                       )
+
+        # Turn of a cube of the 2nd row, the 2nd cube (Povorot kuba 2-go ryada, 2-y kub)
+        boxShape_2_2.rotate(Base.Vector ((-batteryWidth - 
+                           2*row_betweenBattery-
+                           boxThickness),(-row_betweenBattery),0),
+                           Base.Vector(x, y, z), rotation)
+
+        # Scaling a shape (Masshtabirovaniye formy)
+        boxShape_2_2 = boxShape_2_2.transformGeometry(myMat)
+
+        # Object for display of the form (Ob"yekt dlya otobrazheniya formy)
+        box = document.addObject('Part::Feature', 'Box')
+        box.Shape = boxShape_2_2
+
+        # Form of a cube of the 2nd row (3) (Forma kuba vtorogo ryada (3))
+        boxShape_2_3 = Part.makeBox(batteryWidth, batteryDepth, 
+                       batteryHeight, Base.Vector(row2_cubeLocation_X, 
+                       2*(row1_cubeLocation_Y)+row_betweenBattery*2, 
+                       row1_cubeLocation_Z)
+                       )
+
+        # Turn of a cube of the 2nd row, the 3rd cube (Povorot kuba 2-go ryada, 3-go kuba)
+        boxShape_2_3.rotate(Base.Vector ((-batteryWidth - 
+                           2*row_betweenBattery-
+                           boxThickness),(-row_betweenBattery),0),
+                           Base.Vector(x, y, z), rotation)
+
+        # Scaling a shape (Masshtabirovaniye formy)
+        boxShape_2_3 = boxShape_2_3.transformGeometry(myMat)
+
+        # Object for display of the form  (Ob"yekt dlya otobrazheniya formy)
+        box = document.addObject('Part::Feature', 'Box')
+        box.Shape = boxShape_2_3
+
+        # Form of a cube of the 2nd row (4) (Forma kuba vtorogo ryada (4))
+        boxShape_2_4 = Part.makeBox(batteryWidth, batteryDepth, 
+                       batteryHeight, Base.Vector(row2_cubeLocation_X, 
+                       3*(row1_cubeLocation_Y)+row_betweenBattery*3, 
+                       row1_cubeLocation_Z)
+                       )
+
+        # Turn of a cube of the 2nd row, the 4th cube (Povorot kuba 2-go ryada, 4-y kub)
+        boxShape_2_4.rotate(Base.Vector ((-batteryWidth - 
+                           2*row_betweenBattery-
+                           boxThickness),(-row_betweenBattery),0),
+                           Base.Vector(x, y, z), rotation)
+
+        # Scaling a shape (Masshtabirovaniye formy)
+        boxShape_2_4 = boxShape_2_4.transformGeometry(myMat)
+
+        # Object for display of the form (Ob"yekt dlya otobrazheniya formy)
+        box = document.addObject('Part::Feature', 'Box')
+        box.Shape = boxShape_2_4
+
+        # Form of a cube of the 2nd row (5) (Forma kuba 2-go ryada (5))
+        boxShape_2_5 = Part.makeBox(batteryWidth, batteryDepth, 
+                       batteryHeight, Base.Vector(row2_cubeLocation_X, 
+                       4*(row1_cubeLocation_Y)+row_betweenBattery*4, 
+                       row1_cubeLocation_Z)
+                       )
+
+        # Turn of a cube of the 2nd row, the 5th cube (Povorot kuba 2-go ryada, 5-y kub)
+        boxShape_2_5.rotate(Base.Vector ((-batteryWidth - 
+                           2*row_betweenBattery-
+                           boxThickness),(-row_betweenBattery),0),
+                           Base.Vector(x, y, z), rotation)
+
+        # Scaling a shape (Masshtabirovaniye formy)
+        boxShape_2_5 = boxShape_2_5.transformGeometry(myMat)
+
+        # Object for display of the form (Ob"yekt dlya otobrazheniya formy)
+        box = document.addObject('Part::Feature', 'Box')
+        box.Shape = boxShape_2_5
+
+
+##############################################################################################
+
+        box1Clone = Draft.clone(box1);
+        box2Clone = Draft.clone(box2);
+        box3Clone = Draft.clone(box3);
+        box4Clone = Draft.clone(box4);
+        box5Clone = Draft.clone(box5);
+        ###
+        boxShapeLTh.rotate(Base.Vector((-batteryWidth - 2*row_betweenBattery-boxThickness),(-row_betweenBattery),0), Base.Vector(1, 0, 0), 45);
+        boxShapeRTh.rotate(Base.Vector((-batteryWidth - 2*row_betweenBattery-boxThickness),(-row_betweenBattery),0), Base.Vector(1, 0, 0), 45);
+        boxShapeATh.rotate(Base.Vector((-batteryWidth - 2*row_betweenBattery-boxThickness),(-row_betweenBattery),0), Base.Vector(1, 0, 0), 45);
+        boxShapePTh.rotate(Base.Vector((-batteryWidth - 2*row_betweenBattery-boxThickness),(-row_betweenBattery),0), Base.Vector(1, 0, 0), 45);
+        boxShapeLoTh.rotate(Base.Vector((-batteryWidth - 2*row_betweenBattery-boxThickness),(-row_betweenBattery),0), Base.Vector(1, 0, 0), 45);
+        ###
+        box1Clone.Shape = boxShapeLTh;
+        box2Clone.Shape = boxShapeRTh;
+        box3Clone.Shape = boxShapeATh;
+        box4Clone.Shape = boxShapePTh;
+        box5Clone.Shape = boxShapeLoTh;
+        ###
+        box1Clone.ViewObject.Visibility = 0;
+        box2Clone.ViewObject.Visibility = 0;
+        box3Clone.ViewObject.Visibility = 0;
+        box4Clone.ViewObject.Visibility = 0;
+        box5Clone.ViewObject.Visibility = 0;
+        ###
+        shelveGroup.addObject(box1Clone);
+        shelveGroup.addObject(box2Clone);
+        shelveGroup.addObject(box3Clone);
+        shelveGroup.addObject(box4Clone);
+        shelveGroup.addObject(box5Clone);
+        ###
+
+        # Side part page (Stranitsa chasti storony)
+        boxShapeLTh = boxShapeRTh = boxShapeATh = boxShapePTh = boxShapeLoTh = document.addObject('Drawing::FeaturePage', 'Side part');
+        boxShapeLTh.Template = boxShapeRTh.Template = boxShapeATh.Template = boxShapePTh.Template = boxShapeLoTh.Template = os.path.dirname(__file__) + '/A4-Portrait-ISO7200.svg';
+        ###
+        boxShapeLThView = document.addObject('Drawing::FeatureViewPart', 'Side part view');
+        boxShapeRThView = document.addObject('Drawing::FeatureViewPart', 'Side part view');
+        boxShapeAThView = document.addObject('Drawing::FeatureViewPart', 'Side part view');
+        boxShapePThView = document.addObject('Drawing::FeatureViewPart', 'Side part view');
+        boxShapeLoThView = document.addObject('Drawing::FeatureViewPart', 'Side part view');
+        ###
+        boxShapeLThView.Source = boxShapeLTh;
+        boxShapeRThView.Source = boxShapeRTh;
+        boxShapeAThView.Source = boxShapeATh;
+        boxShapePThView.Source = boxShapePTh;
+        boxShapeLoThView.Source = boxShapeLoTh;
+        ###
+        boxShapeLThView.Direction = boxShapeRThView.Direction = boxShapeAThView.Direction = boxShapePThView.Direction = boxShapeLoThView.Direction = (1, 1, 1);
+        boxShapeLThView.X = boxShapeRThView.X = boxShapeAThView.X = boxShapePThView.X = boxShapeLoThView.X = 120.0;
+        boxShapeLThView.Y = boxShapeRThView.Y = boxShapeAThView.Y = boxShapePThView.Y = boxShapeLoThView.Y = 175.0;
+        ###
+        boxShapeLThView.Scale = boxShapeRThView.Scale = boxShapeAThView.Scale = boxShapePThView.Scale = boxShapeLoThView.Scale = 0.1; # drawingScale;
+        ###
+        boxShapeLTh.addObject(boxShapeLThView);
+        boxShapeRTh.addObject(boxShapeRThView);
+        boxShapeATh.addObject(boxShapeAThView);
+        boxShapePTh.addObject(boxShapePThView);
+        boxShapeLoTh.addObject(boxShapeLoThView);
+        # Change page texts (Izmenit' tekst stranitsy)
+        boxShapeLThTexts = boxShapeLTh.EditableTexts;
+        boxShapeRThTexts = boxShapeRTh.EditableTexts;
+        boxShapeAThTexts = boxShapeATh.EditableTexts;
+        boxShapePThTexts = boxShapePTh.EditableTexts;
+        boxShapeLoThTexts = boxShapeLoTh.EditableTexts;
+        # Author (avtor)
+        boxShapeLThTexts[0] = "Vitche Research Team";
+        boxShapeRThTexts[0] = "Vitche Research Team";
+        boxShapeAThTexts[0] = "Vitche Research Team";
+        boxShapePThTexts[0] = "Vitche Research Team";
+        boxShapeLoThTexts[0] = "Vitche Research Team";
+        # Drawing name (Nazvaniye chertezha)
+        boxShapeLThTexts[1] = "Roof book shelve - side part";
+        boxShapeRThTexts[1] = "Roof book shelve - side part";
+        boxShapeAThTexts[1] = "Roof book shelve - side part";
+        boxShapePThTexts[1] = "Roof book shelve - side part";
+        boxShapeLoThTexts[1] = "Roof book shelve - side part";
+        # Scale (Masshtab)
+        boxShapeLThTexts[10] = str(1); # str(drawingScale);
+        boxShapeRThTexts[10] = str(1); # str(drawingScale);
+        boxShapeAThTexts[10] = str(1); # str(drawingScale);
+        boxShapePThTexts[10] = str(1); # str(drawingScale);
+        boxShapeLoThTexts[10] = str(1); # str(drawingScale);
+        # Drawing (Risovaniye)
+        boxShapeLThTexts[12] = "1";
+        boxShapeRThTexts[12] = "1";
+        boxShapeAThTexts[12] = "1";
+        boxShapePThTexts[12] = "1";
+        boxShapeLoThTexts[12] = "1";
+        # Date (Data)
+        #boxTexts[13] = datetime.datetime.now().strftime("%Y-%m-%d");
+        # Version (Versiya)
+        boxShapeLThTexts[14] = "0";
+        boxShapeRThTexts[14] = "0";
+        boxShapeAThTexts[14] = "0";
+        boxShapePThTexts[14] = "0";
+        boxShapeLoThTexts[14] = "0";
+        ###
+        boxShapeLTh.EditableTexts = boxShapeLThTexts;
+        boxShapeRTh.EditableTexts = boxShapeRThTexts;
+        boxShapeATh.EditableTexts = boxShapeAThTexts;
+        boxShapePTh.EditableTexts = boxShapePThTexts;
+        boxShapeLoTh.EditableTexts = boxShapeLoThTexts;
+
+##############################################################################################
+
+"""      
+    def display3D():
+        # Side part page (Stranitsa chasti storony)
+        box1Page = box2Page = box3Page = box4Page = box5Page = document.addObject('Drawing::FeaturePage', 'Side part');
+        box1Page.Template = box2Page.Template = box3Page.Template = box4Page.Template = box5Page.Template = os.path.dirname(__file__) + '/A4-Portrait-ISO7200.svg';
+        ###
+        box1View = document.addObject('Drawing::FeatureViewPart', 'Side part view');
+        box2View = document.addObject('Drawing::FeatureViewPart', 'Side part view');
+        box3View = document.addObject('Drawing::FeatureViewPart', 'Side part view');
+        box4View = document.addObject('Drawing::FeatureViewPart', 'Side part view');
+        box5View = document.addObject('Drawing::FeatureViewPart', 'Side part view');
+        ###
+        box1View.Source = box1;
+        box2View.Source = box2;
+        box3View.Source = box3;
+        box4View.Source = box4;
+        box5View.Source = box5;
+        ###
+        box1View.Direction = box2View.Direction = box3View.Direction = box4View.Direction = box5View.Direction = (1, 1, 1);
+        box1View.X = box2View.X = box3View.X = box4View.X = box5View.X = 150.0;
+        box1View.Y = box2View.Y = box3View.Y = box4View.Y = box5View.Y = 250.0;
+        ###
+        box1View.Scale = box2View.Scale = box3View.Scale = box4View.Scale = box5View.Scale = 0.1; # drawingScale;
+        ###
+        box1Page.addObject(box1View);
+        box2Page.addObject(box2View);
+        box3Page.addObject(box3View);
+        box4Page.addObject(box4View);
+        box5Page.addObject(box5View);
+        # Change page texts (Izmenit' tekst stranitsy)
+        box1Texts = box1Page.EditableTexts;
+        box2Texts = box2Page.EditableTexts;
+        box3Texts = box3Page.EditableTexts;
+        box4Texts = box4Page.EditableTexts;
+        box5Texts = box5Page.EditableTexts;
+        # Author (avtor)
+        box1Texts[0] = "Vitche Research Team";
+        box2Texts[0] = "Vitche Research Team";
+        box3Texts[0] = "Vitche Research Team";
+        box4Texts[0] = "Vitche Research Team";
+        box5Texts[0] = "Vitche Research Team";
+        # Drawing name (Nazvaniye chertezha)
+        box1Texts[1] = "Roof book shelve - side part";
+        box2Texts[1] = "Roof book shelve - side part";
+        box3Texts[1] = "Roof book shelve - side part";
+        box4Texts[1] = "Roof book shelve - side part";
+        box5Texts[1] = "Roof book shelve - side part";
+        # Scale (Masshtab)
+        box1Texts[10] = str(1); # str(drawingScale);
+        box2Texts[10] = str(1); # str(drawingScale);
+        box3Texts[10] = str(1); # str(drawingScale);
+        box4Texts[10] = str(1); # str(drawingScale);
+        box5Texts[10] = str(1); # str(drawingScale);
+        # Drawing (Risovaniye)
+        box1Texts[12] = "1";
+        box2Texts[12] = "1";
+        box3Texts[12] = "1";
+        box4Texts[12] = "1";
+        box5Texts[12] = "1";
+        # Date (Data)
+        #boxTexts[13] = datetime.datetime.now().strftime("%Y-%m-%d");
+        # Version (Versiya)
+        box1Texts[14] = "0";
+        box2Texts[14] = "0";
+        box3Texts[14] = "0";
+        box4Texts[14] = "0";
+        box5Texts[14] = "0";
+        ###
+        box1Page.EditableTexts = box1Texts;
+        box2Page.EditableTexts = box2Texts;
+        box3Page.EditableTexts = box3Texts;
+        box4Page.EditableTexts = box4Texts;
+        box5Page.EditableTexts = box5Texts;
+
+"""
+
+class NG(Box):
+    """NG-300 Battery Case0"""
+    def __init__(self, row_betweenBattery, boxThickness, 
+                 additionalHeight, rotation, x, y, z,
+                 scale_by_x, scale_by_y, scale_by_z):
+        Box.__init__(self, 150, 200, 150, row_betweenBattery, 
+                     boxThickness, additionalHeight, rotation, 
+                     x, y, z, scale_by_x, scale_by_y, scale_by_z)
+
+NG_300 = NG(50, 40, 0, 0, 0, 0, 1, 1, 1, 1)
+
+# 835, 547, 485
+
+# To switch to the most convenient look (Chtoby pereklyuchit'sya na samyy udobnyy vid)
 Gui.SendMsgToActiveView("ViewFit")
 Gui.activeDocument().activeView().viewAxonometric()
 
+# It is repeted to draw the document (Povtorno narisovat' dokument)
 document.recompute()
 
-# Draft.scale(FreeCAD.ActiveDocument.ActiveObject,FreeCAD.Vector(2,2,2)) 
-
-
-# Side part page
-boxPage = document.addObject('Drawing::FeaturePage', 'Side part');
-boxPage.Template = os.path.dirname(__file__) + '/A4-Portrait-ISO7200.svg';
-boxView = document.addObject('Drawing::FeatureViewPart', 'Side part view');
-boxView.Source = box;
-boxView.Direction = (0.0, 1.0, 0);
-boxView.X = 50.0;
-boxView.Y = 100.0;
-boxView.Scale = 1.0;  # drawingScale;
-boxPage.addObject(boxView);
-# Change page texts
-boxTexts = boxPage.EditableTexts;
-# Author
-boxTexts[0] = "Vitche Research Team";
-# Drawing name
-boxTexts[1] = "Roof book shelve - side part";
-# Scale
-boxTexts[10] = str(1.0);
-# Drawing #
-boxTexts[12] = "1";
-# Date
-# boxTexts[13] = datetime.datetime.now().strftime("%Y-%m-%d");
-# Version
-boxTexts[14] = "0" ;
-boxPage.EditableTexts = boxTexts;
+"""
+batteryWidth                              # Shirina kuba (dlinna) (x)
+batteryDepth                              # Glubina kuba (shirina)(y)
+batteryHeight                             # Vysota kuba ()(z)
+row_betweenBattery                        # Rasstoyaniye mezhdu batareyami
+boxThickness                              # Tolshchina stenki koroba
+additionalHeight                          # + k vysote stenki koroba ot akkumulyatora
+rotation                                  # Ugol povorota figur
+x, y, z                                   # Os' vrashcheniya otnositel'no x, y ili z sootvetsvtenno
+"""
 
 
 """
+
 # Side part page
 leftSidePage = document.addObject('Drawing::FeaturePage', 'Side part');
 leftSidePage.Template = os.path.dirname(__file__) + '/A4-Portrait-ISO7200.svg';
